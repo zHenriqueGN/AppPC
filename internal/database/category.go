@@ -2,8 +2,13 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/google/uuid"
+)
+
+var (
+	ErrCategoryNotFound = errors.New("category not found")
 )
 
 type Category struct {
@@ -24,6 +29,24 @@ func (c *Category) Create(name, description string) (Category, error) {
 		return Category{}, err
 	}
 	return Category{ID: ID, Name: name, Description: description}, nil
+}
+
+func (c *Category) GetCategory(id string) (Category, error) {
+	rows, err := c.db.Query("SELECT id, name, description FROM categories WHERE id = $1", id)
+	if err != nil {
+		return Category{}, err
+	}
+	defer rows.Close()
+
+	var category Category
+	if rows.Next() {
+		err := rows.Scan(&category.ID, &category.Name, &category.Description)
+		if err != nil {
+			return Category{}, err
+		}
+		return category, nil
+	}
+	return Category{}, ErrCategoryNotFound
 }
 
 func (c *Category) FindAll() ([]Category, error) {
