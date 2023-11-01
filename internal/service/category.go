@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"io"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/zHenriqueGN/AppPC/internal/database"
@@ -60,4 +61,50 @@ func (c *CategoryService) ListCategories(ctx context.Context, in *pb.BlankReques
 	return &pb.CategoryListResponse{
 		Categories: categoriesList,
 	}, nil
+}
+
+func (c *CategoryService) CreateCategoryStream(stream pb.CategoryService_CreateCategoryStreamServer) error {
+	categories := &pb.CategoryListResponse{}
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(categories)
+		}
+		if err != nil {
+			return err
+		}
+		category, err := c.CategoryDB.Create(in.Name, in.Description)
+		if err != nil {
+			return err
+		}
+		categories.Categories = append(categories.Categories, &pb.CategoryResponse{
+			Id:          category.ID,
+			Name:        category.Name,
+			Description: category.Description,
+		})
+	}
+}
+
+func (c *CategoryService) CreateCategoryStreamBidirectional(stream pb.CategoryService_CreateCategoryStreamBidirectionalServer) error {
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		category, err := c.CategoryDB.Create(in.Name, in.Description)
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&pb.CategoryResponse{
+			Id:          category.ID,
+			Name:        category.Name,
+			Description: category.Description,
+		})
+		if err != nil {
+			return err
+		}
+	}
 }
