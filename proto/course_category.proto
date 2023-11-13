@@ -30,3 +30,32 @@ service CategoryService {
     rpc ListCategories(blankRequest) returns (CategoryListResponse) {}
     rpc GetCategory(GetCategoryRequest) returns (CategoryResponse) {}
 }
+
+message CreateCourseRequest {
+    string name = 1;
+    string description = 2;
+    string categoryID = 3;
+}
+
+message GetCourseRequest {
+    string id = 1;
+}
+
+message CourseResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string categoryID = 4;
+}
+
+message CourseListResponse {
+    repeated CourseResponse courses = 1;
+}
+
+service CourseService {
+    rpc CreateCourse(CreateCourseRequest) returns (CourseResponse) {}
+    rpc CreateCourseStream(stream CreateCourseRequest) returns (CourseListResponse) {}
+    rpc CreateCourseStreamBidirectional(stream CreateCourseRequest) returns (stream CourseResponse) {}
+    rpc ListCourses(blankRequest) returns (CourseListResponse) {}
+    rpc GetCourse(GetCourseRequest) returns (CourseResponse) {}
+}
