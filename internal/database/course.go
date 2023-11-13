@@ -28,6 +28,21 @@ func (c *CourseDB) Create(course *entity.Course) error {
 	return nil
 }
 
+func (c *CourseDB) FindByID(id string) (*entity.Course, error) {
+	stmt, err := c.db.Prepare("SELECT id, name, description, category_id FROM courses WHERE id = $1")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var course entity.Course
+	err = stmt.QueryRow(id).Scan(&course.ID, &course.Name, &course.Description, &course.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+	return &course, nil
+}
+
 func (c *CourseDB) FindAll() ([]entity.Course, error) {
 	rows, err := c.db.Query("SELECT id, name, description, category_id FROM courses")
 	if err != nil {
