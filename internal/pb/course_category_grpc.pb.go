@@ -314,3 +314,300 @@ var CategoryService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "proto/course_category.proto",
 }
+
+// CourseServiceClient is the client API for CourseService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CourseServiceClient interface {
+	CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*CourseResponse, error)
+	CreateCourseStream(ctx context.Context, opts ...grpc.CallOption) (CourseService_CreateCourseStreamClient, error)
+	CreateCourseStreamBidirectional(ctx context.Context, opts ...grpc.CallOption) (CourseService_CreateCourseStreamBidirectionalClient, error)
+	ListCourses(ctx context.Context, in *BlankRequest, opts ...grpc.CallOption) (*CourseListResponse, error)
+	GetCourse(ctx context.Context, in *GetCourseRequest, opts ...grpc.CallOption) (*CourseResponse, error)
+}
+
+type courseServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCourseServiceClient(cc grpc.ClientConnInterface) CourseServiceClient {
+	return &courseServiceClient{cc}
+}
+
+func (c *courseServiceClient) CreateCourse(ctx context.Context, in *CreateCourseRequest, opts ...grpc.CallOption) (*CourseResponse, error) {
+	out := new(CourseResponse)
+	err := c.cc.Invoke(ctx, "/pb.CourseService/CreateCourse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseServiceClient) CreateCourseStream(ctx context.Context, opts ...grpc.CallOption) (CourseService_CreateCourseStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &CourseService_ServiceDesc.Streams[0], "/pb.CourseService/CreateCourseStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &courseServiceCreateCourseStreamClient{stream}
+	return x, nil
+}
+
+type CourseService_CreateCourseStreamClient interface {
+	Send(*CreateCourseRequest) error
+	CloseAndRecv() (*CourseListResponse, error)
+	grpc.ClientStream
+}
+
+type courseServiceCreateCourseStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *courseServiceCreateCourseStreamClient) Send(m *CreateCourseRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *courseServiceCreateCourseStreamClient) CloseAndRecv() (*CourseListResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(CourseListResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *courseServiceClient) CreateCourseStreamBidirectional(ctx context.Context, opts ...grpc.CallOption) (CourseService_CreateCourseStreamBidirectionalClient, error) {
+	stream, err := c.cc.NewStream(ctx, &CourseService_ServiceDesc.Streams[1], "/pb.CourseService/CreateCourseStreamBidirectional", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &courseServiceCreateCourseStreamBidirectionalClient{stream}
+	return x, nil
+}
+
+type CourseService_CreateCourseStreamBidirectionalClient interface {
+	Send(*CreateCourseRequest) error
+	Recv() (*CourseResponse, error)
+	grpc.ClientStream
+}
+
+type courseServiceCreateCourseStreamBidirectionalClient struct {
+	grpc.ClientStream
+}
+
+func (x *courseServiceCreateCourseStreamBidirectionalClient) Send(m *CreateCourseRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *courseServiceCreateCourseStreamBidirectionalClient) Recv() (*CourseResponse, error) {
+	m := new(CourseResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *courseServiceClient) ListCourses(ctx context.Context, in *BlankRequest, opts ...grpc.CallOption) (*CourseListResponse, error) {
+	out := new(CourseListResponse)
+	err := c.cc.Invoke(ctx, "/pb.CourseService/ListCourses", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseServiceClient) GetCourse(ctx context.Context, in *GetCourseRequest, opts ...grpc.CallOption) (*CourseResponse, error) {
+	out := new(CourseResponse)
+	err := c.cc.Invoke(ctx, "/pb.CourseService/GetCourse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CourseServiceServer is the server API for CourseService service.
+// All implementations must embed UnimplementedCourseServiceServer
+// for forward compatibility
+type CourseServiceServer interface {
+	CreateCourse(context.Context, *CreateCourseRequest) (*CourseResponse, error)
+	CreateCourseStream(CourseService_CreateCourseStreamServer) error
+	CreateCourseStreamBidirectional(CourseService_CreateCourseStreamBidirectionalServer) error
+	ListCourses(context.Context, *BlankRequest) (*CourseListResponse, error)
+	GetCourse(context.Context, *GetCourseRequest) (*CourseResponse, error)
+	mustEmbedUnimplementedCourseServiceServer()
+}
+
+// UnimplementedCourseServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedCourseServiceServer struct {
+}
+
+func (UnimplementedCourseServiceServer) CreateCourse(context.Context, *CreateCourseRequest) (*CourseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCourse not implemented")
+}
+func (UnimplementedCourseServiceServer) CreateCourseStream(CourseService_CreateCourseStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method CreateCourseStream not implemented")
+}
+func (UnimplementedCourseServiceServer) CreateCourseStreamBidirectional(CourseService_CreateCourseStreamBidirectionalServer) error {
+	return status.Errorf(codes.Unimplemented, "method CreateCourseStreamBidirectional not implemented")
+}
+func (UnimplementedCourseServiceServer) ListCourses(context.Context, *BlankRequest) (*CourseListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCourses not implemented")
+}
+func (UnimplementedCourseServiceServer) GetCourse(context.Context, *GetCourseRequest) (*CourseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCourse not implemented")
+}
+func (UnimplementedCourseServiceServer) mustEmbedUnimplementedCourseServiceServer() {}
+
+// UnsafeCourseServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CourseServiceServer will
+// result in compilation errors.
+type UnsafeCourseServiceServer interface {
+	mustEmbedUnimplementedCourseServiceServer()
+}
+
+func RegisterCourseServiceServer(s grpc.ServiceRegistrar, srv CourseServiceServer) {
+	s.RegisterService(&CourseService_ServiceDesc, srv)
+}
+
+func _CourseService_CreateCourse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCourseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CourseServiceServer).CreateCourse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.CourseService/CreateCourse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CourseServiceServer).CreateCourse(ctx, req.(*CreateCourseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CourseService_CreateCourseStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CourseServiceServer).CreateCourseStream(&courseServiceCreateCourseStreamServer{stream})
+}
+
+type CourseService_CreateCourseStreamServer interface {
+	SendAndClose(*CourseListResponse) error
+	Recv() (*CreateCourseRequest, error)
+	grpc.ServerStream
+}
+
+type courseServiceCreateCourseStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *courseServiceCreateCourseStreamServer) SendAndClose(m *CourseListResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *courseServiceCreateCourseStreamServer) Recv() (*CreateCourseRequest, error) {
+	m := new(CreateCourseRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _CourseService_CreateCourseStreamBidirectional_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CourseServiceServer).CreateCourseStreamBidirectional(&courseServiceCreateCourseStreamBidirectionalServer{stream})
+}
+
+type CourseService_CreateCourseStreamBidirectionalServer interface {
+	Send(*CourseResponse) error
+	Recv() (*CreateCourseRequest, error)
+	grpc.ServerStream
+}
+
+type courseServiceCreateCourseStreamBidirectionalServer struct {
+	grpc.ServerStream
+}
+
+func (x *courseServiceCreateCourseStreamBidirectionalServer) Send(m *CourseResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *courseServiceCreateCourseStreamBidirectionalServer) Recv() (*CreateCourseRequest, error) {
+	m := new(CreateCourseRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _CourseService_ListCourses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BlankRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CourseServiceServer).ListCourses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.CourseService/ListCourses",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CourseServiceServer).ListCourses(ctx, req.(*BlankRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CourseService_GetCourse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCourseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CourseServiceServer).GetCourse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.CourseService/GetCourse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CourseServiceServer).GetCourse(ctx, req.(*GetCourseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// CourseService_ServiceDesc is the grpc.ServiceDesc for CourseService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var CourseService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "pb.CourseService",
+	HandlerType: (*CourseServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateCourse",
+			Handler:    _CourseService_CreateCourse_Handler,
+		},
+		{
+			MethodName: "ListCourses",
+			Handler:    _CourseService_ListCourses_Handler,
+		},
+		{
+			MethodName: "GetCourse",
+			Handler:    _CourseService_GetCourse_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "CreateCourseStream",
+			Handler:       _CourseService_CreateCourseStream_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "CreateCourseStreamBidirectional",
+			Handler:       _CourseService_CreateCourseStreamBidirectional_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "proto/course_category.proto",
+}
