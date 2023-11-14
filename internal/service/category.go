@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/zHenriqueGN/AppPC/internal/database"
+	"github.com/zHenriqueGN/AppPC/internal/entity"
 	"github.com/zHenriqueGN/AppPC/internal/pb"
 )
 
@@ -21,7 +22,8 @@ func NewCategoryService(categoryDB database.CategoryDB) *CategoryService {
 }
 
 func (c *CategoryService) CreateCategory(ctx context.Context, in *pb.CreateCategoryRequest) (*pb.CategoryResponse, error) {
-	category, err := c.CategoryDB.Create(in.Name, in.Description)
+	category := entity.NewCategory(in.Name, in.Description)
+	err := c.CategoryDB.Create(category)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +75,8 @@ func (c *CategoryService) CreateCategoryStream(stream pb.CategoryService_CreateC
 		if err != nil {
 			return err
 		}
-		category, err := c.CategoryDB.Create(in.Name, in.Description)
+		category := entity.NewCategory(in.Name, in.Description)
+		err = c.CategoryDB.Create(category)
 		if err != nil {
 			return err
 		}
@@ -94,7 +97,8 @@ func (c *CategoryService) CreateCategoryStreamBidirectional(stream pb.CategorySe
 		if err != nil {
 			return err
 		}
-		category, err := c.CategoryDB.Create(in.Name, in.Description)
+		category := entity.NewCategory(in.Name, in.Description)
+		err = c.CategoryDB.Create(category)
 		if err != nil {
 			return err
 		}

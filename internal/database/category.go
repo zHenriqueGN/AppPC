@@ -19,17 +19,26 @@ func NewCategory(db *sql.DB) *CategoryDB {
 	return &CategoryDB{db: db}
 }
 
-func (c *CategoryDB) Create(name, description string) (*entity.Category, error) {
-	category := entity.NewCategory(name, description)
-	_, err := c.db.Exec("INSERT INTO categories (id, name, description) VALUES ($1, $2, $3)", category.ID, category.Name, category.Description)
+func (c *CategoryDB) Create(category *entity.Category) error {
+	stmt, err := c.db.Prepare("INSERT INTO categories (id, name, description) VALUES ($1, $2, $3)")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return category, nil
+	defer stmt.Close()
+	_, err = stmt.Exec(category.ID, category.Name, category.Description)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *CategoryDB) GetCategory(id string) (*entity.Category, error) {
-	rows, err := c.db.Query("SELECT id, name, description FROM categories WHERE id = $1", id)
+	stmt, err := c.db.Prepare("SELECT id, name, description FROM categories WHERE id = $1")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(id)
 	if err != nil {
 		return nil, err
 	}
@@ -67,15 +76,19 @@ func (c *CategoryDB) FindAll() ([]*entity.Category, error) {
 }
 
 func (c *CategoryDB) FindByCourseID(courseID string) (*entity.Category, error) {
-	row := c.db.QueryRow(
+	stmt, err := c.db.Prepare(
 		`SELECT A.id, A.name, A.description FROM categories A
 		 INNER JOIN courses B 
 		 ON A.id = B.category_id
-		 WHERE B.id = $1
-		`, courseID,
+		 WHERE B.id = $1`,
 	)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	row := stmt.QueryRow(courseID)
 	var category entity.Category
-	err := row.Scan(
+	err = row.Scan(
 		&category.ID,
 		&category.Name,
 		&category.Description,
