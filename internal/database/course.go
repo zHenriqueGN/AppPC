@@ -3,45 +3,56 @@ package database
 import (
 	"database/sql"
 
-	"github.com/google/uuid"
+	"github.com/zHenriqueGN/AppPC/internal/entity"
 )
 
-type Course struct {
-	db          *sql.DB
-	ID          string
-	Name        string
-	Description string
-	CategoryID  string
+type CourseDB struct {
+	db *sql.DB
 }
 
-func NewCourse(db *sql.DB) *Course {
-	return &Course{db: db}
+func NewCourse(db *sql.DB) *CourseDB {
+	return &CourseDB{db: db}
 }
 
-func (c *Course) Create(name, description, categoryID string) (*Course, error) {
-	ID := uuid.New().String()
-	_, err := c.db.Exec("INSERT INTO courses (id, name, description, category_id) VALUES ($1, $2, $3, $4)", ID, name, description, categoryID)
+func (c *CourseDB) Create(course *entity.Course) error {
+	stmt, err := c.db.Prepare("INSERT INTO courses (id, name, description, category_id) VALUES ($1, $2, $3, $4)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(course.ID, course.Name, course.Description, course.CategoryID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CourseDB) FindByID(id string) (*entity.Course, error) {
+	stmt, err := c.db.Prepare("SELECT id, name, description, category_id FROM courses WHERE id = $1")
 	if err != nil {
 		return nil, err
 	}
-	return &Course{
-		ID:          ID,
-		Name:        name,
-		Description: description,
-		CategoryID:  categoryID,
-	}, nil
+	defer stmt.Close()
+
+	var course entity.Course
+	err = stmt.QueryRow(id).Scan(&course.ID, &course.Name, &course.Description, &course.CategoryID)
+	if err != nil {
+		return nil, err
+	}
+	return &course, nil
 }
 
-func (c *Course) FindAll() ([]Course, error) {
+func (c *CourseDB) FindAll() ([]entity.Course, error) {
 	rows, err := c.db.Query("SELECT id, name, description, category_id FROM courses")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var courses []Course
+	var courses []entity.Course
 	for rows.Next() {
-		var course Course
+		var course entity.Course
 		err := rows.Scan(&course.ID, &course.Name, &course.Description, &course.CategoryID)
 		if err != nil {
 			return nil, err
@@ -52,18 +63,22 @@ func (c *Course) FindAll() ([]Course, error) {
 	return courses, nil
 }
 
-func (c *Course) FindByCategoryID(categoryID string) ([]Course, error) {
-	rows, err := c.db.Query(
-		"SELECT id, name, description, category_id FROM courses WHERE category_id = $1", categoryID,
-	)
+func (c *CourseDB) FindByCategoryID(categoryID string) ([]entity.Course, error) {
+	stmt, err := c.db.Prepare("SELECT id, name, description, category_id FROM courses WHERE category_id = $1")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(categoryID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var courses []Course
+	var courses []entity.Course
 	for rows.Next() {
-		var course Course
+		var course entity.Course
 		err := rows.Scan(&course.ID, &course.Name, &course.Description, &course.CategoryID)
 		if err != nil {
 			return nil, err
