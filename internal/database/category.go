@@ -19,13 +19,17 @@ func NewCategory(db *sql.DB) *CategoryDB {
 	return &CategoryDB{db: db}
 }
 
-func (c *CategoryDB) Create(name, description string) (*entity.Category, error) {
-	category := entity.NewCategory(name, description)
-	_, err := c.db.Exec("INSERT INTO categories (id, name, description) VALUES ($1, $2, $3)", category.ID, category.Name, category.Description)
+func (c *CategoryDB) Create(category *entity.Category) error {
+	stmt, err := c.db.Prepare("INSERT INTO categories (id, name, description) VALUES ($1, $2, $3)")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return category, nil
+	defer stmt.Close()
+	_, err = stmt.Exec(category.ID, category.Name, category.Description)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *CategoryDB) GetCategory(id string) (*entity.Category, error) {
