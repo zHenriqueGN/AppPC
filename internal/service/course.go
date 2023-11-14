@@ -83,3 +83,35 @@ func (c *CourseService) CreateCourseStreamBidirectional(stream pb.CourseService_
 		}
 	}
 }
+
+func (c *CourseService) GetCourse(ctx context.Context, in *pb.GetCourseRequest) (*pb.CourseResponse, error) {
+	course, err := c.CourseDB.FindByID(in.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.CourseResponse{
+		Id:          course.ID,
+		Name:        course.Name,
+		Description: course.Description,
+		CategoryID:  course.CategoryID,
+	}, nil
+}
+
+func (c *CourseService) ListCourses(ctx context.Context, in *pb.BlankRequest) (*pb.CourseListResponse, error) {
+	courses, err := c.CourseDB.FindAll()
+	if err != nil {
+		return nil, err
+	}
+	var coursesList []*pb.CourseResponse
+	for _, course := range courses {
+		coursesList = append(coursesList, &pb.CourseResponse{
+			Id:          course.ID,
+			Name:        course.Name,
+			Description: course.Description,
+			CategoryID:  course.CategoryID,
+		})
+	}
+	return &pb.CourseListResponse{
+		Courses: coursesList,
+	}, nil
+}
