@@ -20,7 +20,7 @@ And check the version
 evans --version
 ```
 
-Finally, install gRPC dependencies locally
+Finally, install project dependencies locally
 
 ```
 go mod download
